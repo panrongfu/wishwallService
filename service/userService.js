@@ -370,8 +370,8 @@ exports.findAllGroups = function(){
 
 //查询用户所参加的群id
 exports.findMyGroups = function(userId){
-  var sql = 'SELECT g.*FROM user_group As ug INNER JOIN groups AS g ON ug.groupid = g.groupid WHERE ug.userid=? AND status=?';
-  var values = [userId,1];
+  var sql = 'SELECT g.*FROM user_group As ug INNER JOIN groups AS g ON ug.groupid = g.groupid WHERE ug.userid=?';
+  var values = [userId];
   sql =mysql.format(sql,values);
 
   //创建promise
@@ -638,4 +638,24 @@ exports.findWishByCity = function(page,cityName){
     });
   });
   return promise;
+}
+
+//用户意见反馈
+exports.addUserAdvise = function(adviseId,userId,advise){
+  var sql = 'INSERT INTO advise VALUES(?,?,?,?)';
+  var time = moment().format('YYYY-MM-DD hh:mm:ss');
+  var values = [adviseId,userId, advise,time];
+  sql = mysql.format(sql, values);
+  //创建promise
+  var promise = new Promise(function(resolve, reject) {
+    connection.query(sql, function(err, result) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+  return promise;
+
 }

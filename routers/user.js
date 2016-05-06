@@ -375,7 +375,21 @@ router.post('/findWishByCity', function*(next) {
   }
 });
 
-
+//用户反馈意见
+router.post('/addUserAdvise',function*(next){
+  try{
+    var ps = this.request.body;
+    var userId = this.state.user.userId; 
+    var advise = ps.advise;
+    var adviseId = uuid.v1();
+    var affect = yield userService.addUserAdvise(adviseId,userId,advise);
+    if(affect.affectedRows === 1){
+      this.body = this.RESS(200,"success");
+    }
+  }catch(e){
+    throw new Error(e.message);
+  }
+});
 
 
 
