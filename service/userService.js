@@ -4,8 +4,8 @@ var moment = require('moment');
 var connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'pan',
-  database: 'wishwall'
+  password: '511752921',
+  database: 'bookstore'
 });
 //创建一个连接
 connection.connect(function (err){
@@ -646,6 +646,93 @@ exports.addUserAdvise = function(adviseId,userId,advise){
   var time = moment().format('YYYY-MM-DD hh:mm:ss');
   var values = [adviseId,userId, advise,time];
   sql = mysql.format(sql, values);
+  //创建promise
+  var promise = new Promise(function(resolve, reject) {
+    connection.query(sql, function(err, result) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+  return promise;
+}
+//点赞
+exports.likeWish = function(likeId,wishId,userId){
+  var sql = 'INSERT INTO likes VALUES(?,?,?,?)';
+  var time = moment().format('YYYY-MM-DD hh:mm:ss');
+  var values = [likeId,wishId,userId,time];
+  sql = mysql.format(sql, values);
+  console.log(sql+">>>>>>>>>>>>>>");
+  //创建promise
+  var promise = new Promise(function(resolve, reject) {
+    connection.query(sql, function(err, result) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+  return promise;
+}
+
+exports.unLikeWish = function(likeId,userId){
+  var sql = 'DELETE FROM likes WHERE likeid=? AND userid=?';
+  var values = [likeId,userId];
+  sql = mysql.format(sql, values);
+  //创建promise
+  var promise = new Promise(function(resolve, reject) {
+    connection.query(sql, function(err, result) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+  return promise;
+}
+//查询许愿条所有的赞
+exports.findWishLike = function(wishId){
+  var sql ='SELECT u.userid,u.username FROM likes l INNER JOIN user u ON l.userid=u.userid WHERE wishid=?';
+  sql = mysql.format(sql, wishId);
+  var promise = new Promise(function(resolve, reject) {
+    connection.query(sql, function(err, rows, fields) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows);
+      }
+    });
+  });
+  return promise;
+}
+
+//查询许愿条所有的赞
+exports.findWishComm = function(wishId){
+  var sql ='SELECT u.userid,u.username,u.icon,c.content FROM comments c INNER JOIN user u ON c.userid=u.userid WHERE wishid=?';
+  sql = mysql.format(sql, wishId);
+  var promise = new Promise(function(resolve, reject) {
+    connection.query(sql, function(err, rows, fields) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows);
+      }
+    });
+  });
+  return promise;
+}
+//评论
+exports.commWish = function(commId,wishId,userId,commText){
+
+  var sql = 'INSERT INTO comments VALUES(?,?,?,?,?)';
+  var time = moment().format('YYYY-MM-DD hh:mm:ss');
+  var values = [commId,wishId,userId,commText,time];
+  sql = mysql.format(sql, values);
+  console.log(sql+">>>>>>>>>>>>>>");
   //创建promise
   var promise = new Promise(function(resolve, reject) {
     connection.query(sql, function(err, result) {

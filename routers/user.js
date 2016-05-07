@@ -333,16 +333,19 @@ router.post('/addWishImage',function*(next){
 
 //查询我的许愿条
 router.post('/findMyWish',function*(next){
-
     try{
       var ps = this.request.body;
       var page = ps.page;  
       var userId = this.state.user.userId;
       var wishs = yield userService.findMyWish(userId,page);
    if(wishs.length >= 1){
-      for(var i = 0; i< wishs.length; i++){
+      for(var i = 0; i< wishs.length; i++){     
           var imgs = yield userService.findWishImage(wishs[i].wishid);
-          wishs[i].wish_img = imgs; 
+          var likes = yield userService.findWishLike(wishs[i].wishid);
+          var comms = yield userService.findWishComm(wishs[i].wishid);
+          wishs[i].wish_img = imgs;
+          wishs[i].wish_like = likes;
+          wishs[i].wish_comm = comms;          
       }
    }
    // console.log(rows.length);
@@ -365,8 +368,13 @@ router.post('/findWishByCity', function*(next) {
     if (wishs.length >= 1) {
       for (var i = 0; i < wishs.length; i++) {
         var imgs = yield userService.findWishImage(wishs[i].wishid);
+        var likes = yield userService.findWishLike(wishs[i].wishid);
+        var comms = yield userService.findWishComm(wishs[i].wishid);
         wishs[i].wish_img = imgs;
+        wishs[i].wish_like = likes;
+        wishs[i].wish_comm = comms;
       }
+
     }
     this.body = this.RESS(200, wishs);
     console.log(wishs);
@@ -390,6 +398,53 @@ router.post('/addUserAdvise',function*(next){
     throw new Error(e.message);
   }
 });
+
+router.post('/likeWish',function*(next){
+  try{
+    var ps = this.request.body;
+    var userId = this.state.user.userId; 
+    var wishId = ps.wishId;
+    var type = ps.type;
+  
+    console.log(+">>>><><<<<<<<<<<<<<<")
+    var wishId = ps.wishId; 
+    var affect;
+    if(type === "UNLIKE" && likeId != null){
+        var likeId = ps.likeId;
+        affect = yield userService.unLikeWish(likeId,userId);
+    }else if(type === "LIKE"){
+      var likeId = uuid.v1();
+      affect = yield userService.likeWish(likeId,wishId,userId);
+    }
+    if(affect.affectedRows === 1 ){
+      console.log("dian zan  cheng gong")
+      this.body = this.RESS(200,"success");
+    }
+  }catch(e){
+    throw new Error(e.message);
+  }
+});
+
+router.post('/commWish',function*(){
+  try{
+    var ps = this.request.body;
+    var userId = this.state.user.userId; 
+    var wishId = ps.wishId;
+    var commText = ps.commText;
+    var commId = uuid.v1();
+    var affect = yield userService.commWish(commId,wishId,userId,commText);
+    if(affect.affectedRows === 1){
+      this.body = this.RESS(200,"success");
+    }
+
+  }catch(e){
+    throw new Error(e.message);
+  }
+
+});
+
+
+
 
 
 

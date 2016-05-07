@@ -330,13 +330,17 @@ router.get('/findMyWish',function*(next){
       var ps = this.query;
       var page  = ps.page;
       var userId = ps.userId;
-    //  var userId = this.state.user.userId;
+      var userId = this.state.user.userId;
 
       var wishs = yield userService.findMyWish(userId,page);
      if(wishs.length >= 1){
         for(var i = 0; i< wishs.length; i++){
-            var imgs = yield userService.findWishImage(wishs[i].wishid);
-            wishs[i].wish_img = imgs; 
+              var imgs = yield userService.findWishImage(wishs[i].wishid);
+              var likes = yield userService.findWishLike(wishs[i].wishid);
+              var comms = yield userService.findWishComm(wishs[i].wishid);
+              wishs[i].wish_img = imgs;
+              wishs[i].wish_like = likes;
+              wishs[i].wish_comm = comms;
         }
      }
    // console.log(rows.length);
@@ -345,6 +349,33 @@ router.get('/findMyWish',function*(next){
     }catch(e){
       throw new Error(e.message);
     }
+});
+
+//根据城市查询许愿条
+router.get('/findWishByCity', function*(next) {
+  try {
+    // var ps = this.request.body;
+    // var userId = this.state.user.userId;
+    // var page = ps.page;
+    // var cityName = ps.cityName;
+    // console.log(cityName);
+    var wishs = yield userService.findWishByCity(1,'广州市');
+    if (wishs.length >= 1) {
+      for (var i = 0; i < wishs.length; i++) {
+        var imgs = yield userService.findWishImage(wishs[i].wishid);
+        var likes = yield userService.findWishLike(wishs[i].wishid);
+        var comms = yield userService.findWishComm(wishs[i].wishid);
+        wishs[i].wish_img = imgs;
+        wishs[i].wish_like = likes;
+        wishs[i].wish_comm = comms;
+      }
+
+    }
+    this.body = this.RESS(200, wishs);
+    console.log(wishs);
+  } catch (e) {
+    throw new Error(e.message);
+  }
 });
 
 /////////////////////////////
