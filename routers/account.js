@@ -186,17 +186,17 @@ router.get('/findFriendList',function*(next){
     }
 });
 
-//查找用户加入群的所有Id
-router.get('/findMyGroups',function*(next){
-  try{
-    var ps = this.query;
-    var userId =ps.userid;
-    var rows = yield userService.findMyGroups(userId);
-    this.body = this.RESS(200,rows);
-  }catch(e){
-    throw new Error(e.message);
-  }
-});
+// //查找用户加入群的所有Id
+// router.get('/findMyGroups',function*(next){
+//   try{
+//     var ps = this.query;
+//     var userId =ps.userid;
+//     var rows = yield userService.findMyGroups(userId);
+//     this.body = this.RESS(200,rows);
+//   }catch(e){
+//     throw new Error(e.message);
+//   }
+// });
 
 router.get('/findGroupInfoById',function*(next){
   try{
@@ -328,11 +328,11 @@ router.get('/findMyWish',function*(next){
 
     try{
       var ps = this.query;
-      var page  = ps.page;
+     // var page  = ps.page;
       var userId = ps.userId;
-      var userId = this.state.user.userId;
+     // var userId = this.state.user.userId;
 
-      var wishs = yield userService.findMyWish(userId,page);
+      var wishs = yield userService.findMyWish(userId,1);
      if(wishs.length >= 1){
         for(var i = 0; i< wishs.length; i++){
               var imgs = yield userService.findWishImage(wishs[i].wishid);

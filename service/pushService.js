@@ -4,11 +4,12 @@ var parseString = require( 'xml2js' ).parseString;
 var optionalArgs = [ 'push content', 'push data' ];
 var uuid = require('node-uuid');
 var mysql = require('mysql');
+var moment = require('moment');
 var connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '511752921',
-  database: 'bookstore'
+  password: 'pan',
+  database: 'wishwall'
 });
 //创建一个连接
 connection.connect(function (err){

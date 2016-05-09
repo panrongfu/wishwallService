@@ -34,23 +34,36 @@ router.post('/sendMessage', function*(next) {
 //创建一个群
 router.post('/createGroup',function*(next){
   var parameters = this.request.body;
-  var userId = parameters.userId;
+  var userId = this.state.user.userId;
   var groupId = uuid.v1();
   var groupName = parameters.groupName;
   //向融云发送创建群的请求
   var result = yield pushService.sendCreateGroup(userId,groupId,groupName);
   if(result.code == 200){
-     console.log(result+"《@》@@@");
       var affect = yield pushService.createGroup(groupId,userId,groupName);
-        console.log(affect+">>>>>>>>>>>>");
       if(affect.affectedRows == 1){
-         console.log(this.RESS(200,"success")+">>>>>>>>>>>>>>>>>>");
-         this.body = this.RESS(200,"success");
-         return;
-      }
-      throw new Error("创建群失败-sjk")
-  }
-  throw new Error("创建群失败-rcloud");
+           var rong = yield pushService.sendJoinGroup(userId, groupId, groupName);
+           if(rong.code === 200){
+              var joionGroup = yield pushService.joinGroup(userId, groupId);
+              if(joionGroup.affectedRows == 1){
+                    var updateGroup = yield pushService.updateGroup(1,groupId);
+                  if(updateGroup.affectedRows == 1){
+                       this.body = this.RESS(200,"success");
+                  }else{
+                    throw new Error("未知错误-WJQ")
+                  }
+              }else{
+                throw new Error("未知错误 -WWJG")
+              }  
+           }else{
+            throw new Error("未知错误-RYJQ")
+           }
+      }else{
+        throw new Error("创建群失败-sjk")
+      }  
+  }else{
+     throw new Error("创建群失败-rcloud");
+  } 
 });
 
 

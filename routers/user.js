@@ -195,11 +195,11 @@ router.post('/findGroupInfoById',function*(next){
 
 
 //查找用户加入群的所有Id
-router.post('/findMyGroups',function*(next){
+router.get('/findMyGroups',function*(next){
   try{
-    console.log("findMyGroups>>>>>>>>>");
-    var ps = this.request.body;
-    var userId =ps.userId;
+    console.log("findMyGroups>>>>>>>>>"); 
+    var userId = this.state.user.userId;
+    console.log(userId);
     var rows = yield userService.findMyGroups(userId);
     console.log(JSON.stringify(rows)+"<<<<<<<<<<<<<<<<<");
     this.body = this.RESS(200,rows);

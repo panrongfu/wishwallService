@@ -4,8 +4,8 @@ var moment = require('moment');
 var connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '511752921',
-  database: 'bookstore'
+  password: 'pan',
+  database: 'wishwall'
 });
 //创建一个连接
 connection.connect(function (err){
@@ -373,7 +373,8 @@ exports.findMyGroups = function(userId){
   var sql = 'SELECT g.*FROM user_group As ug INNER JOIN groups AS g ON ug.groupid = g.groupid WHERE ug.userid=?';
   var values = [userId];
   sql =mysql.format(sql,values);
-
+  console.log("------------------------------");
+  console.log(sql);
   //创建promise
   var promise = new Promise(function(resolve, reject) {
     connection.query(sql, function(err, rows, fields) {
@@ -714,6 +715,7 @@ exports.findWishLike = function(wishId){
 exports.findWishComm = function(wishId){
   var sql ='SELECT u.userid,u.username,u.icon,c.content FROM comments c INNER JOIN user u ON c.userid=u.userid WHERE wishid=?';
   sql = mysql.format(sql, wishId);
+  console.log("findComm:"+sql);
   var promise = new Promise(function(resolve, reject) {
     connection.query(sql, function(err, rows, fields) {
       if (err) {
