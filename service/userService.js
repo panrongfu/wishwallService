@@ -278,12 +278,13 @@ exports.updateFriend = function(userid, friendid, status) {
 }
 
 //查询好友列表id
-exports.findFriendIds = function(userid) {
+exports.findFriendIds = function(userId) {
  // var sql = 'SELECT relation.friendid FROM relation where userid=? OR friendid=?';
   //status 为1表示已经是好友关系
-  var sql = 'SELECT * FROM relation where status=? AND (userid=? OR friendid=?)';
-  var values = [ 1,userid, userid];
+  var sql = 'SELECT f.friendid FROM friends f where userid=?';
+  var values = userId
   sql = mysql.format(sql, values);
+  console.log(sql);
   //创建promise
   var promise = new Promise(function(resolve, reject) {
     connection.query(sql, function(err, rows, fields) {
@@ -405,8 +406,26 @@ exports.findGroupInfoById = function(groupId){
     });
   });
   return promise;
-
 }
+//根据名称查询群组
+exports.findGroupByName = function(name){
+  var sql = 'SELECT * FROM groups WHERE `name`LIKE ?';
+  var value='%'+name+'%';
+  sql = mysql.format(sql,value);
+
+  //创建promise
+  var promise = new Promise(function(resolve,reject){
+     connection.query(sql, function(err, rows, fields) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows);
+      }
+    });
+  });
+  return promise;
+}
+
 //查询所有的聊天室
 exports.findAllChatrooms = function(){
   var sql = 'SELECT * FROM chatroom';

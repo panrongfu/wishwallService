@@ -378,5 +378,19 @@ router.get('/findWishByCity', function*(next) {
   }
 });
 
+
+//查询好友列表的id
+router.get('/findFriendId',function*(next){
+  try{
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>#$#@@#%%%@@@@@@>>>>>>>>>>>>");
+   // var userId = this.state.user.userId; 
+    var rows = yield userService.findFriendIds('921bb250-0157-11e6-9aef-75c231961465');
+    this.body = this.RESS(200,rows);
+    console.log(rows);
+  }catch(e){
+    throw new Error(e.message);
+  }
+});
+
 /////////////////////////////
 module.exports = router;

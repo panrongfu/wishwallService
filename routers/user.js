@@ -207,7 +207,19 @@ router.get('/findMyGroups',function*(next){
     throw new Error(e.message);
   }
 });
+//根据名称查询群组
+router.post('/findGroupByName',function*(next){
+  try{
+      var ps = this.request.body;
+      var groupName = ps.groupName;
 
+      var rows = yield userService.findGroupByName(groupName);
+      this.body = this.RESS(200,rows);
+
+  }catch(e){
+    throw new Error(e.message);
+  }
+});
 
 
 router.get('/findAllChatrooms',function*(next){
@@ -443,33 +455,21 @@ router.post('/commWish',function*(){
 
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
 //查询好友列表的id
 router.get('/findFriendIds',function*(next){
-   var parameters = this.query;
-   var userid = parameters.userid;
-   var result = {};
-   var rows = yield userService.findFriendIds(userid);
-   if(rows != null){  
-      result.result= rows;
-      result.resultCode = 200;     
-   }else{
-     result.resultCode = 100;
-   }
-   console.log(result);
-   this.body = result;
+  try{
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>#$#@@#%%%@@@@@@>>>>>>>>>>>>");
+    var userId = this.state.user.userId; 
+    var rows = yield userService.findFriendIds(userId);
+    this.body = this.RESS(200,rows);
+    console.log(rows);
+  }catch(e){
+    throw new Error(e.message);
+  }
 });
+
+
+
 //获取token
 router.get('/user/getToken', function*(next) {
   var promise = new Promise(function(resolve, reject) {
