@@ -392,5 +392,18 @@ router.get('/findFriendId',function*(next){
   }
 });
 
+
+//查找个人中心背景图片
+router.get('/findMyCenterPic',function*(next){
+  try{
+    // var userId = this.state.user.userId;
+     var rows = yield userService.findMyCenterPic('921bb250-0157-11e6-9aef-75c231961465');
+     console.log(JSON.stringify(rows));
+     this.body=this.RESS(200,rows);
+  }catch(e){
+    throw new Error(e.message);
+  }
+});
+
 /////////////////////////////
 module.exports = router;

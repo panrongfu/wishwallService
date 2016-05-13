@@ -1,6 +1,7 @@
 var router = require('koa-router')();
 var pushService = require('../service/pushService');
 var uuid = require('node-uuid');
+var userService = require('../service/userService');
 
 //发送单聊信息
 router.post('/sendMessage', function*(next) {
@@ -24,8 +25,23 @@ router.post('/sendMessage', function*(next) {
         content: message
       };
     }
+    //先进行判断是否已经是好友关系
+    var has = yield userService.findFriendIds(fromUserId);
+    console.log(JSON.stringify(has));
+    for (var i = 0; i < has.length; i++) {
+      if (toUserId === has[i].friendid) {    
+          this.body = this.RESS(200, "你们已经是好友啦");
+          return;
+      }
+    }
+     //向融云发送单聊信息（好友请求） 
     var result = yield pushService.sendMessage(fromUserId, toUserId, type, messageObject);
-    if (result.code == 200) this.body = this.RESS(200, "success");
+    if (result.code == 200) {
+      var affect = yield userService.applyAddFriend(fromUserId, toUserId);
+      if (affect.affectedRows == 1) {
+        this.body = this.RESS(200, "好友请求成功");
+      }
+    }  
   } catch (e) {
     throw new Error(e.message);
   }

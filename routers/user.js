@@ -66,8 +66,19 @@ router.post('/applyAddFriend', function*(next){
      var ps = this.request.body;
      var userid = ps.userid;
      var friendid = ps.friendid;
+     //首先判断是否已经是好友关系
+     var hasFriend = yield userService.findFriendIds(userid);
+     console.log(JSON.stringify(hasFriend));
+  
+     for(var i=0; i<hasFriend.result.length; i++){
+        if(friendId === hasFriend.result[i].friendid){
+          this.body = this.RESS(200,"你们已经是好友啦");
+          return;
+        }
+     }
+
      var affect = yield userService.applyAddFriend(userid,friendid);
-     if(affect.affectedRows == 1) this.body = this.RESS(200,"success");
+     if(affect.affectedRows == 1) this.body = this.RESS(200,"好友请求成功");
   }catch(e){
     throw new Error(e.message);
   }
@@ -342,6 +353,33 @@ router.post('/addWishImage',function*(next){
       throw new Error(e.message);
     }
 });
+//添加个人中心的背景图片
+router.post('/addMyCenterPic',function*(next){
+  try{
+    var ps = this.request.body;
+    var picUrl = ps.picUrl;
+    var picId = uuid.v1();
+    var userId = this.state.user.userId;
+    var affect = yield userService.addMyCenterPic(picId,userId,picUrl);
+    if(affect.affectedRows === 1){
+      this.body = this.RESS(200,"success");
+    }
+  }catch(e){
+    throw new Error(e.message);
+  }
+});
+
+//查找个人中心背景图片
+router.get('/findMyCenterPic',function*(next){
+  try{
+     var userId = this.state.user.userId;
+     var rows = yield userService.findMyCenterPic(userId);
+     console.log(JSON.stringify(rows));
+     this.body=this.RESS(200,rows);
+  }catch(e){
+    throw new Error(e.message);
+  }
+});
 
 //查询我的许愿条
 router.post('/findMyWish',function*(next){
@@ -375,8 +413,35 @@ router.post('/findWishByCity', function*(next) {
     var userId = this.state.user.userId;
     var page = ps.page;
     var cityName = ps.cityName;
+
     console.log(cityName);
     var wishs = yield userService.findWishByCity(page,cityName);
+    if (wishs.length >= 1) {
+      for (var i = 0; i < wishs.length; i++) {
+        var imgs = yield userService.findWishImage(wishs[i].wishid);
+        var likes = yield userService.findWishLike(wishs[i].wishid);
+        var comms = yield userService.findWishComm(wishs[i].wishid);
+        wishs[i].wish_img = imgs;
+        wishs[i].wish_like = likes;
+        wishs[i].wish_comm = comms;
+      }
+
+    }
+    this.body = this.RESS(200, wishs);
+    console.log(wishs);
+  } catch (e) {
+    throw new Error(e.message);
+  }
+});
+//根据名称查询许愿条
+router.post('/findWishByName',function*(next){
+   try {
+    var ps = this.request.body;
+    var userId = this.state.user.userId;
+    var page = ps.page;
+    var name = ps.name;
+    console.log(name);
+    var wishs = yield userService.findWishByName(page,name);
     if (wishs.length >= 1) {
       for (var i = 0; i < wishs.length; i++) {
         var imgs = yield userService.findWishImage(wishs[i].wishid);

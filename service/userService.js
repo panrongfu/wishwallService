@@ -599,6 +599,43 @@ exports.addWishImage = function(wishId, imgUrl) {
   return promise;
 }
 
+//个人中心背景图片
+exports.addMyCenterPic = function(picId,userId,picUrl){
+  var sql = 'INSERT INTO center_pics VALUES(?,?,?,?)';
+  var time = moment().format('YYYY-MM-DD hh:mm:ss');
+  var values = [picId, userId,picUrl,time];
+  sql = mysql.format(sql, values);
+  //创建promise
+  var promise = new Promise(function(resolve, reject) {
+    connection.query(sql, function(err, result) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+  return promise;
+}
+//查询个人中心的背景图片
+exports.findMyCenterPic = function(userId){
+  var sql = 'SELECT cp.pic_url FROM center_pics cp WHERE userid=?';
+  var value = userId;
+  sql = mysql.format(sql,value);
+  console.log("......................");
+  console.log(sql);
+    var promise = new Promise(function(resolve, reject) {
+    connection.query(sql, function(err,rows,fields) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+  return promise;
+}
+
 //查询我的许愿条
 exports.findMyWish = function(userId,page){
   var cpage = page;
@@ -646,6 +683,28 @@ exports.findWishByCity = function(page,cityName){
   //String sql = "select * from deployees from departmentid='1001' limit "+startIndex+","+pageSize;
   var sql = 'SELECT u.username,u.userid,u.icon,w.content,w.time,w.wishid FROM user u INNER JOIN wishs w ON u.userid=w.userid WHERE w.city=? limit ?,?';
   var values = [cityName,startIndex,pageSize];
+  sql = mysql.format(sql,values);
+  console.log(sql);
+  var promise = new Promise(function(resolve,reject){
+         connection.query(sql,function(err,rows,fields){
+      if(err){
+        reject(err);
+      }else{
+        resolve(rows);
+      }
+    });
+  });
+  return promise;
+}
+//根据名称查询许愿条
+exports.findWishByName = function(page,name){
+  var cpage = page;
+  var pageSize = 10;
+  var startIndex = (cpage-1)*pageSize;
+  //String sql = "select * from deployees from departmentid='1001' limit "+startIndex+","+pageSize;
+  var sql = 'SELECT u.username,u.userid,u.icon,w.content,w.time,w.wishid FROM user u INNER JOIN wishs w ON u.userid=w.userid WHERE w.content LIKE ? limit ?,?';
+  var sName= '%'+name+'%';
+  var values = [sName,startIndex,pageSize];
   sql = mysql.format(sql,values);
   console.log(sql);
   var promise = new Promise(function(resolve,reject){
