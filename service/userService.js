@@ -18,11 +18,11 @@ connection.connect(function (err){
 
 //用户注册
 exports.userRegister = function(user) {
-  var userid = user.userid;
-  var username = user.username;
+  var userId = user.userId;
+  var userName = user.userName;
   var password = user.password;
-  var sql = 'INSERT INTO user VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-  var values = [userid, username, password,'','','','','','','','','','','',''];
+  var sql = 'INSERT INTO user VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+  var values = [userId, userName, password,'','','','','','','','','','','','',userName];
   sql = mysql.format(sql, values);
   //创建promise
   var promise = new Promise(function(resolve, reject) {
@@ -44,8 +44,9 @@ exports.defaultRegister = function(user) {
   var userIcon = user.userIcon;
   var userSex = user.userSex;
   var password = user.password;
-  var sql = 'INSERT INTO user VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-  var values = [userId, userName, password,'',userIcon,userSex,'','','','','','','','',''];
+  var sql = 'INSERT INTO user VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+  //默认的昵称是用户账户
+  var values = [userId, userName, password,'',userIcon,userSex,'','','','','','','','','',userName];
   sql = mysql.format(sql, values);
   //创建promise
   var promise = new Promise(function(resolve, reject) {
@@ -82,7 +83,7 @@ exports.userLogin = function(user){
 exports.updateUserInfo = function(userInfo) {
 
   var userId = userInfo.userId;
-  var userName = userInfo.userName;
+  var nickName = userInfo.nickName;
   var icon = userInfo.icon;
   var sex = userInfo.sex;
   var phone = userInfo.phone;
@@ -95,8 +96,8 @@ exports.updateUserInfo = function(userInfo) {
   var wx = userInfo.wx;
   var qq = userInfo.qq;
 
-  var sql = 'UPDATE user SET username=?,icon=?,sex=?,phone=?,birth_year=?,birth_month=?,birth_day=?,province=?,city=?,area=?,weixin=?,qq=? WHERE userid=?';
-  var values = [userName, icon, sex, phone, year, month, day, prov, city, area, wx, qq,userId];
+  var sql = 'UPDATE user SET nickname=?,icon=?,sex=?,phone=?,birth_year=?,birth_month=?,birth_day=?,province=?,city=?,area=?,weixin=?,qq=? WHERE userid=?';
+  var values = [nickName, icon, sex, phone, year, month, day, prov, city, area, wx, qq,userId];
   sql = mysql.format(sql, values);
   console.log(sql);
   var promise = new Promise(function(resolve, reject) {
@@ -132,12 +133,12 @@ exports.getToken = function(user) {
 }
 
 //为用户添加token
-exports.insertToken = function(token, userid) {
+exports.insertToken = function(token, userId) {
   try {
     var sql = 'UPDATE user SET token=? WHERE userid =?';
-    var values = [token, userid];
+    var values = [token, userId];
     sql = mysql.format(sql, values);
-    console.log("sql"+sql);
+    console.log("sql>>>>>>>>>>>>>>>>>>"+sql);
     //创建promise
     var promise = new Promise(function(resolve, reject) {
         connection.query(sql, function(err, result) {
@@ -158,9 +159,9 @@ exports.insertToken = function(token, userid) {
 }
 
 //根据用户名查询用模糊查询
-exports.findUsersLikeName = function(username) {
-  var sql = 'SELECT *FROM user WHERE username LIKE ?';
-  var values = '%'+username+'%';
+exports.findUsersLikeName = function(nickname) {
+  var sql = 'SELECT *FROM user WHERE nickname LIKE ?';
+  var values = '%'+nickname+'%';
   sql = mysql.format(sql, values);
   console.log("-------------------------");
   console.log(sql);
@@ -641,7 +642,7 @@ exports.findMyWish = function(userId,page){
   var cpage = page;
   var pageSize = 10;
   var startIndex = (cpage-1)*pageSize;
-  var sql = 'SELECT u.username,u.userid,u.icon,w.content,w.time,w.wishid FROM user u INNER JOIN wishs w ON u.userid=w.userid WHERE u.userid=? limit ?,?';
+  var sql = 'SELECT u.username,u.nickname,u.userid,u.icon,w.content,w.time,w.wishid FROM user u INNER JOIN wishs w ON u.userid=w.userid WHERE u.userid=? ORDER BY w.time DESC limit ?,?';
   var values = [userId,startIndex,pageSize];
 
   sql = mysql.format(sql,values);
@@ -681,7 +682,7 @@ exports.findWishByCity = function(page,cityName){
   var pageSize = 10;
   var startIndex = (cpage-1)*pageSize;
   //String sql = "select * from deployees from departmentid='1001' limit "+startIndex+","+pageSize;
-  var sql = 'SELECT u.username,u.userid,u.icon,w.content,w.time,w.wishid FROM user u INNER JOIN wishs w ON u.userid=w.userid WHERE w.city=? limit ?,?';
+  var sql = 'SELECT u.username,u.nickname,u.userid,u.icon,w.content,w.time,w.wishid FROM user u INNER JOIN wishs w ON u.userid=w.userid WHERE w.city=? ORDER BY w.time DESC limit ?,?';
   var values = [cityName,startIndex,pageSize];
   sql = mysql.format(sql,values);
   console.log(sql);
@@ -702,7 +703,7 @@ exports.findWishByName = function(page,name){
   var pageSize = 10;
   var startIndex = (cpage-1)*pageSize;
   //String sql = "select * from deployees from departmentid='1001' limit "+startIndex+","+pageSize;
-  var sql = 'SELECT u.username,u.userid,u.icon,w.content,w.time,w.wishid FROM user u INNER JOIN wishs w ON u.userid=w.userid WHERE w.content LIKE ? limit ?,?';
+  var sql = 'SELECT u.username,u.nickname,u.userid,u.icon,w.content,w.time,w.wishid FROM user u INNER JOIN wishs w ON u.userid=w.userid WHERE w.content LIKE ? limit ?,?';
   var sName= '%'+name+'%';
   var values = [sName,startIndex,pageSize];
   sql = mysql.format(sql,values);
@@ -775,7 +776,7 @@ exports.unLikeWish = function(likeId,userId){
 }
 //查询许愿条所有的赞
 exports.findWishLike = function(wishId){
-  var sql ='SELECT u.userid,u.username FROM likes l INNER JOIN user u ON l.userid=u.userid WHERE wishid=?';
+  var sql ='SELECT u.userid,u.username,u.nickname FROM likes l INNER JOIN user u ON l.userid=u.userid WHERE wishid=?';
   sql = mysql.format(sql, wishId);
   var promise = new Promise(function(resolve, reject) {
     connection.query(sql, function(err, rows, fields) {
@@ -791,7 +792,7 @@ exports.findWishLike = function(wishId){
 
 //查询许愿条所有的赞
 exports.findWishComm = function(wishId){
-  var sql ='SELECT u.userid,u.username,u.icon,c.content FROM comments c INNER JOIN user u ON c.userid=u.userid WHERE wishid=?';
+  var sql ='SELECT u.userid,u.username,u.nickname,u.icon,c.content FROM comments c INNER JOIN user u ON c.userid=u.userid WHERE wishid=?';
   sql = mysql.format(sql, wishId);
   console.log("findComm:"+sql);
   var promise = new Promise(function(resolve, reject) {

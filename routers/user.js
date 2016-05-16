@@ -13,7 +13,7 @@ router.post('/updateUserInfo',function*(next){
     var ps = this.request.body;
     console.log(JSON.stringify(ps));
     userInfo.userId = ps.userId;
-    userInfo.userName = ps.userName;
+    userInfo.nickName = ps.nickName;
     userInfo.icon = ps.icon;
     userInfo.sex = ps.sex;
     userInfo.phone = ps.phone;
@@ -38,9 +38,9 @@ router.post('/updateUserInfo',function*(next){
 //根据用户名查询用户信息
 router.post('/findUsersLikeName', function*(next){
   try{
-    var parameters = this.request.body;
-    var username = parameters.username;
-    var rows = yield userService.findUsersLikeName(username);
+    var ps = this.request.body;
+    var nickName = ps.nickName;
+    var rows = yield userService.findUsersLikeName(nickName);
     this.body = this.RESS(200,rows);
   }catch(e){
     throw new Error(e.message);
@@ -136,23 +136,6 @@ router.post('/applyAddFriendList',function*(next){
   }
 });
 
-//根据用户名查询用户信息
-router.get('/findUserById', function*(next){
-   var ps = this.query;
-   var userid = ps.userid;
-   var result = {};
-   var rows = yield userService.findUserById(userid);
-   if(rows != null){  
-      result.result = rows; 
-      result.resultCode = 200;     
-   }else{
-     result.resultCode = 100;
-   }
-
-   console.log(result);
-   this.body = result;
-});
-
 //修改好友关系
 router.post('/updateFriend',function*(next){
   try{
@@ -182,9 +165,9 @@ router.post('/findFriendIds',function*(next){
 });
 
 //获取所有的群组
-router.get('/findAllGroups',function*(next){
-  console.log("findAllGroups"+ ">>>>>>>>>>>");
+router.post('/findAllGroups',function*(next){
   try{
+     console.log("findAllGroups"+ ">>>>>>>>>>>");
      var rows = yield userService.findAllGroups();
      this.body = this.RESS(200,rows); 
   }catch(e){
@@ -206,7 +189,7 @@ router.post('/findGroupInfoById',function*(next){
 
 
 //查找用户加入群的所有Id
-router.get('/findMyGroups',function*(next){
+router.post('/findMyGroups',function*(next){
   try{
     console.log("findMyGroups>>>>>>>>>"); 
     var userId = this.state.user.userId;
@@ -233,7 +216,7 @@ router.post('/findGroupByName',function*(next){
 });
 
 
-router.get('/findAllChatrooms',function*(next){
+router.post('/findAllChatrooms',function*(next){
     try{
       var rows = yield userService.findAllChatrooms();
       this.body = this.RESS(200,rows);
@@ -258,7 +241,7 @@ router.post('/findUsersByIds',function*(next){
 //////////////////
 
 //查询所有的省
-router.get('/findAllProv',function*(next){
+router.post('/findAllProv',function*(next){
   try{
     var rows = yield userService.findAllProv();
     this.body = this.RESS(200,rows);
@@ -302,7 +285,7 @@ router.post('/findCodeByName',function*(next){
 });
 
 //查询所有城市
-router.get('/getAllCity',function*(next){
+router.post('/getAllCity',function*(next){
   try{
      var rows = yield userService.getAllCity();
      this.body = this.RESS(200,rows);
@@ -370,7 +353,7 @@ router.post('/addMyCenterPic',function*(next){
 });
 
 //查找个人中心背景图片
-router.get('/findMyCenterPic',function*(next){
+router.post('/findMyCenterPic',function*(next){
   try{
      var userId = this.state.user.userId;
      var rows = yield userService.findMyCenterPic(userId);
@@ -521,7 +504,7 @@ router.post('/commWish',function*(){
 });
 
 //查询好友列表的id
-router.get('/findFriendIds',function*(next){
+router.post('/findFriendIds',function*(next){
   try{
     console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>#$#@@#%%%@@@@@@>>>>>>>>>>>>");
     var userId = this.state.user.userId; 
@@ -536,7 +519,7 @@ router.get('/findFriendIds',function*(next){
 
 
 //获取token
-router.get('/user/getToken', function*(next) {
+router.post('/user/getToken', function*(next) {
   var promise = new Promise(function(resolve, reject) {
     rongcloudSDK.user.getToken('0001', 'Lance', 'http://files.domain.com/avatar.jpg', function(err, resultText) {
       if (err) {

@@ -4,7 +4,7 @@ var co = require('co');
 var fs = require('fs');
 
 //向阿里云发送获取token请求
-router.get('/getUploadToken', function*(next) {
+router.post('/getUploadToken', function*(next) {
   
   try{
     var conf = JSON.parse(fs.readFileSync('./config.json'));
