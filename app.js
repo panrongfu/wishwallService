@@ -43,8 +43,15 @@ app.use(function*(next) {
     yield next;
   } catch (e) {
     console.log(e);
-    if (e.status === 401) this.body = this.ERR('token_invalid');
-    this.body = this.ERR(e.message);
+    if (e.status === 401) {
+      this.body = this.ERR('token_invalid');
+      console.log("status:"+e.status);
+      return
+    }else{
+       this.body = this.ERR(e.message);
+       console.log("status:"+e.status);
+       return
+    }
   }
 });
 

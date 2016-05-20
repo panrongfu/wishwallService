@@ -202,8 +202,8 @@ exports.findUserByName = function(username) {
 //申请添加好友
 exports.applyAddFriend = function(userid, friendid) {
   var sql = 'INSERT INTO apply_friend VALUES(?,?,?,?)';
- //  var time = moment().format('YYYY-MM-DD hh:mm:ss');
-   var time = new Date().getTime();
+   var time = moment().format('YYYY-MM-DD HH:mm:ss');
+  // var time = new Date().getTime();
   //3表示请求添加
   var values = [userid, friendid, time, 3];
   sql = mysql.format(sql, values);
@@ -223,7 +223,7 @@ exports.applyAddFriend = function(userid, friendid) {
 //添加好友
 exports.addFriend = function(userid, friendid) {
   var sql = 'INSERT INTO friends VALUES(?,?,?,?)';
-   var time = moment().format('YYYY-MM-DD hh:mm:ss');
+   var time = moment().format('YYYY-MM-DD HH:mm:ss');
   //这里satus为3表示请求添加为好友
   var values = [userid, friendid,1,time];
   sql = mysql.format(sql, values);
@@ -283,9 +283,8 @@ exports.findFriendIds = function(userId) {
  // var sql = 'SELECT relation.friendid FROM relation where userid=? OR friendid=?';
   //status 为1表示已经是好友关系
   var sql = 'SELECT f.friendid FROM friends f where userid=?';
-  var values = userId
-  sql = mysql.format(sql, values);
-  console.log(sql);
+  sql = mysql.format(sql, userId);
+  console.log(sql+">>>>>>>"+userId);
   //创建promise
   var promise = new Promise(function(resolve, reject) {
     connection.query(sql, function(err, rows, fields) {
@@ -538,6 +537,23 @@ exports.getAllCity = function(){
   }); 
   return promise;
 }
+exports.findCityByCode = function(level,code){
+
+    var sql = 'SELECT pca.name FROM tb_prov_city_area_street pca WHERE level=? AND code=?';
+    var values = [level,code];
+    sql = mysql.format(sql,values);  
+    var promise = new Promise(function(resolve,reject){
+      connection.query(sql,function(err,rows,fields){
+      if(err){
+        reject(err);
+      }else{
+        resolve(rows[0]);
+      }
+    });
+  }); 
+  return promise;
+
+}
 
 //根据城市名称查询对应code
 exports.findCodeByName = function(name){
@@ -561,7 +577,7 @@ exports.createWish = function(wishId,userId,content,cityName){
   var sql = 'INSERT INTO wishs VALUES(?,?,?,?,?)';
  // var time = 'NOW()';
  //var time = new Date().getTime();
- var time = moment().format('YYYY-MM-DD hh:mm:ss');
+ var time = moment().format('YYYY-MM-DD HH:mm:ss');
  console.log(time+"<><><><><><><><><><><><>");
   //3表示请求添加
   var values = [wishId, userId, content, cityName,time];
@@ -603,7 +619,7 @@ exports.addWishImage = function(wishId, imgUrl) {
 //个人中心背景图片
 exports.addMyCenterPic = function(picId,userId,picUrl){
   var sql = 'INSERT INTO center_pics VALUES(?,?,?,?)';
-  var time = moment().format('YYYY-MM-DD hh:mm:ss');
+  var time = moment().format('YYYY-MM-DD HH:mm:ss');
   var values = [picId, userId,picUrl,time];
   sql = mysql.format(sql, values);
   //创建promise
@@ -682,8 +698,8 @@ exports.findWishByCity = function(page,cityName){
   var pageSize = 10;
   var startIndex = (cpage-1)*pageSize;
   //String sql = "select * from deployees from departmentid='1001' limit "+startIndex+","+pageSize;
-  var sql = 'SELECT u.username,u.nickname,u.userid,u.icon,w.content,w.time,w.wishid FROM user u INNER JOIN wishs w ON u.userid=w.userid WHERE w.city=? ORDER BY w.time DESC limit ?,?';
-  var values = [cityName,startIndex,pageSize];
+  var sql = 'SELECT u.username,u.nickname,u.userid,u.icon,w.content,w.time,w.wishid FROM user u INNER JOIN wishs w ON u.userid=w.userid WHERE w.city LIKE ? ORDER BY w.time DESC limit ?,?';
+  var values = ['%'+cityName+'%',startIndex,pageSize];
   sql = mysql.format(sql,values);
   console.log(sql);
   var promise = new Promise(function(resolve,reject){
@@ -723,7 +739,7 @@ exports.findWishByName = function(page,name){
 //用户意见反馈
 exports.addUserAdvise = function(adviseId,userId,advise){
   var sql = 'INSERT INTO advise VALUES(?,?,?,?)';
-  var time = moment().format('YYYY-MM-DD hh:mm:ss');
+  var time = moment().format('YYYY-MM-DD HH:mm:ss');
   var values = [adviseId,userId, advise,time];
   sql = mysql.format(sql, values);
   //创建promise
@@ -741,7 +757,7 @@ exports.addUserAdvise = function(adviseId,userId,advise){
 //点赞
 exports.likeWish = function(likeId,wishId,userId){
   var sql = 'INSERT INTO likes VALUES(?,?,?,?)';
-  var time = moment().format('YYYY-MM-DD hh:mm:ss');
+  var time = moment().format('YYYY-MM:mm:ss');
   var values = [likeId,wishId,userId,time];
   sql = mysql.format(sql, values);
   console.log(sql+">>>>>>>>>>>>>>");
@@ -762,6 +778,7 @@ exports.unLikeWish = function(likeId,userId){
   var sql = 'DELETE FROM likes WHERE likeid=? AND userid=?';
   var values = [likeId,userId];
   sql = mysql.format(sql, values);
+  console.log(sql+">>>unLikeWish>>>>>>>>>");
   //创建promise
   var promise = new Promise(function(resolve, reject) {
     connection.query(sql, function(err, result) {
@@ -776,7 +793,7 @@ exports.unLikeWish = function(likeId,userId){
 }
 //查询许愿条所有的赞
 exports.findWishLike = function(wishId){
-  var sql ='SELECT u.userid,u.username,u.nickname FROM likes l INNER JOIN user u ON l.userid=u.userid WHERE wishid=?';
+  var sql ='SELECT l.likeid,u.userid,u.username,u.nickname FROM likes l INNER JOIN user u ON l.userid=u.userid WHERE wishid=?';
   sql = mysql.format(sql, wishId);
   var promise = new Promise(function(resolve, reject) {
     connection.query(sql, function(err, rows, fields) {
@@ -810,7 +827,7 @@ exports.findWishComm = function(wishId){
 exports.commWish = function(commId,wishId,userId,commText){
 
   var sql = 'INSERT INTO comments VALUES(?,?,?,?,?)';
-  var time = moment().format('YYYY-MM-DD hh:mm:ss');
+  var time = moment().format('YYYY-MM-DD HH:mm:ss');
   var values = [commId,wishId,userId,commText,time];
   sql = mysql.format(sql, values);
   console.log(sql+">>>>>>>>>>>>>>");

@@ -77,7 +77,7 @@ exports.sendCreateGroup = function(userId, groupId, groupName) {
 //向数据库groups表插数据
 exports.createGroup = function(groupId, userId, groupName) {
   var sql = 'INSERT INTO groups VALUES(?,?,?,?,?,?,?,?,?,?,?,?)';
-  var time = moment().format('YYYY-MM-DD hh:mm:ss');
+  var time = moment().format('YYYY-MM-DD HH:mm:ss');
   var values = [groupId, userId, groupName, "", "", "", "", "", 0, 500, time,0];
   sql = mysql.format(sql, values);
 

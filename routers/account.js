@@ -117,7 +117,7 @@ router.post('/user/login', function*(next) {
   if(rows!=null){ 
     var userId = rows.userid;
     //生成token
-    var wToken = jwt.sign({userId:userId},"wishwall-secret",{expiresIn:'2h'});
+    var wToken = jwt.sign({userId:userId},"wishwall-secret",{expiresIn:'24h'});
     rows.wToken = wToken;  
     this.body = this.RESS(200,rows);
     return;
@@ -147,5 +147,30 @@ router.post('/admin/login',function*(next){
     return;
   }
   throw new Error("用户名或密码错误");
+});
+
+
+
+////////////////////////////////////////
+router.get('/findUserById',function*(next){
+  try{
+    //var parameters = this.request.body;
+   // var userid = parameters.userid;
+  
+    var rows = yield userService.findUserById('5a5b7960-0065-11e6-9ea7-27ec933c934a');
+    console.log(rows);
+    var provCode = rows.province;
+    var cityCode = rows.city;
+    var areaCode = rows.area; 
+    var provName = yield userService.findCityByCode(1,provCode);
+    var cityName = yield userService.findCityByCode(2,cityCode);
+    var areaName = yield userService.findCityByCode(3,areaCode);
+    rows.province = provName.name;
+    rows.city = cityName.name;
+    rows.area = areaName.name;
+    this.body = this.RESS(200,rows);
+  }catch(e){
+    throw new Error(e.message);
+  }
 });
 module.exports = router;

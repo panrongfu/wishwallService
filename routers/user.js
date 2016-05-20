@@ -50,9 +50,22 @@ router.post('/findUsersLikeName', function*(next){
 //根据用户ID查找用户信息
 router.post('/findUserById',function*(next){
   try{
-    var parameters = this.request.body;
-    var userid = parameters.userid;
-    var rows = yield userService.findUserById(userid);
+    var userId = this.state.user.userId;
+    var rows = yield userService.findUserById(userId);
+    console.log(rows);
+    try{
+      var provCode = rows.province;
+      var cityCode = rows.city;
+      var areaCode = rows.area; 
+      var provName = yield userService.findCityByCode(1,provCode);
+      var cityName = yield userService.findCityByCode(2,cityCode);
+      var areaName = yield userService.findCityByCode(3,areaCode);
+      rows.province = provName.name;
+      rows.city = cityName.name;
+      rows.area = areaName.name;
+    }catch(e){
+
+    }
     this.body = this.RESS(200,rows);
   }catch(e){
     throw new Error(e.message);
@@ -155,9 +168,9 @@ router.post('/updateFriend',function*(next){
 //查询好友列表的id
 router.post('/findFriendIds',function*(next){
   try{
-     var parameters = this.request.body;
-     var userid = parameters.userid;
-     var rows = yield userService.findFriendIds(userid);
+     var ps = this.request.body;
+     var userId = this.state.user.userId;
+     var rows = yield userService.findFriendIds(userId);
      this.body = this.RESS(200,rows);
   }catch(e){
     throw new Error(e.message);
@@ -397,7 +410,7 @@ router.post('/findWishByCity', function*(next) {
     var page = ps.page;
     var cityName = ps.cityName;
 
-    console.log(cityName);
+    console.log(cityName+">>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     var wishs = yield userService.findWishByCity(page,cityName);
     if (wishs.length >= 1) {
       for (var i = 0; i < wishs.length; i++) {
@@ -465,12 +478,11 @@ router.post('/likeWish',function*(next){
     var userId = this.state.user.userId; 
     var wishId = ps.wishId;
     var type = ps.type;
-  
     console.log(+">>>><><<<<<<<<<<<<<<")
-    var wishId = ps.wishId; 
     var affect;
-    if(type === "UNLIKE" && likeId != null){
+    if(type === "UNLIKE"){
         var likeId = ps.likeId;
+        console.log("UNLIKE:"+likeId+">>>>>>>>>>>>>");
         affect = yield userService.unLikeWish(likeId,userId);
     }else if(type === "LIKE"){
       var likeId = uuid.v1();
@@ -478,7 +490,7 @@ router.post('/likeWish',function*(next){
     }
     if(affect.affectedRows === 1 ){
       console.log("dian zan  cheng gong")
-      this.body = this.RESS(200,"success");
+      this.body = this.RESS(200,likeId);
     }
   }catch(e){
     throw new Error(e.message);
