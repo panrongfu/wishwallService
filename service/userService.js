@@ -60,6 +60,26 @@ exports.defaultRegister = function(user) {
   });
 return promise;
 }
+//设置新密码
+exports.setNewPassword = function(password,account) {
+  var sql = 'UPDATE user SET password=? WHERE username=?';
+  var values = [password,account];
+  sql = mysql.format(sql, values);
+  console.log(sql+"》》》》》》》》》》");
+
+  //创建promise
+  var promise = new Promise(function(resolve, reject) {
+    connection.query(sql, function(err,result) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+  return promise;
+}
+
 //用户登录
 exports.userLogin = function(user){
   var username = user.username;
@@ -696,6 +716,7 @@ exports.findWishByCity = function(page,cityName){
 
   var cpage = page;
   var pageSize = 10;
+  console.log(`cityNmae:${cityName}`);
   var startIndex = (cpage-1)*pageSize;
   //String sql = "select * from deployees from departmentid='1001' limit "+startIndex+","+pageSize;
   var sql = 'SELECT u.username,u.nickname,u.userid,u.icon,w.content,w.time,w.wishid FROM user u INNER JOIN wishs w ON u.userid=w.userid WHERE w.city LIKE ? ORDER BY w.time DESC limit ?,?';
@@ -757,7 +778,7 @@ exports.addUserAdvise = function(adviseId,userId,advise){
 //点赞
 exports.likeWish = function(likeId,wishId,userId){
   var sql = 'INSERT INTO likes VALUES(?,?,?,?)';
-  var time = moment().format('YYYY-MM:mm:ss');
+  var time = moment().format('YYYY-MM-D HH:mm:ss');
   var values = [likeId,wishId,userId,time];
   sql = mysql.format(sql, values);
   console.log(sql+">>>>>>>>>>>>>>");
@@ -842,5 +863,5 @@ exports.commWish = function(commId,wishId,userId,commText){
     });
   });
   return promise;
-
 }
+

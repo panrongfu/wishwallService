@@ -9,6 +9,9 @@ var pushService = require('../service/pushService');
 var STS = require('ali-oss').STS;
 var co = require('co');
 var fs = require('fs');
+var fs = require('fs');
+var xml2js = require('xml2js');
+
 ////////////
 
 //用户注册
@@ -101,6 +104,24 @@ router.post('/defaultRegister',function*(next){
 
 });
 
+//设置新密码
+router.post('/setNewPassword',function*(next){
+  try{
+    var ps = this.request.body;
+   // var userId = this.state.user.userId;
+    var account = ps.account;
+    var pwd = ps.password;
+
+    var affect = yield userService.setNewPassword(pwd,account);
+    if(affect.affectedRows === 1){
+      this.body = this.RESS(200,'success');
+      return;
+    }
+
+  }catch(e){
+    throw new Error(e.message);
+  }
+});
 
 //用户登录
 router.post('/user/login', function*(next) {
@@ -172,5 +193,24 @@ router.get('/findUserById',function*(next){
   }catch(e){
     throw new Error(e.message);
   }
+});
+
+
+
+//检查更新
+router.get('/checkForUpdate', function*(next) {
+  try{
+    var parser = new xml2js.Parser(xml2js.defaults['0.1']);
+    var showThis = this;
+    fs.readFile('./updateApk/version.xml', function(err, data) {
+    parser.parseString(data, function(err, result) {
+        showThis.body = showThis.RESS(200,result);
+        return;
+      });
+    });
+  }catch(e){
+    console.log(JSON.stringify(e));
+    throw new Error(e.message);
+  } 
 });
 module.exports = router;

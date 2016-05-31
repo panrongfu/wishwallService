@@ -49,14 +49,22 @@ router.post('/sendMessage', function*(next) {
 
 //创建一个群
 router.post('/createGroup',function*(next){
-  var parameters = this.request.body;
+  var ps = this.request.body;
   var userId = this.state.user.userId;
   var groupId = uuid.v1();
-  var groupName = parameters.groupName;
+  var groupName = ps.groupName;
+  var groupDes = ps.describe;
+  var groupIcon;
+  try{
+     groupIcon = ps.groupIcon;
+  }catch(e){
+
+  }
+  
   //向融云发送创建群的请求
   var result = yield pushService.sendCreateGroup(userId,groupId,groupName);
   if(result.code == 200){
-      var affect = yield pushService.createGroup(groupId,userId,groupName);
+      var affect = yield pushService.createGroup(groupId,userId,groupName,groupDes,groupIcon);
       if(affect.affectedRows == 1){
            var rong = yield pushService.sendJoinGroup(userId, groupId, groupName);
            if(rong.code === 200){

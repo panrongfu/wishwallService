@@ -11,6 +11,7 @@ var acount = require('./routers/account');
 var routers = requireDir('./routers', __dirname)
 var cors = require('koa-cors');
 
+
 var option = {
   Origin : '*'
 }
@@ -44,7 +45,7 @@ app.use(function*(next) {
   } catch (e) {
     console.log(e);
     if (e.status === 401) {
-      this.body = this.ERR('token_invalid');
+      this.body = this.ERR('TOKEN_INVALID');
       console.log("status:"+e.status);
       return
     }else{

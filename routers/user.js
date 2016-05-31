@@ -4,6 +4,9 @@ var userService = require('../service/userService');
 var pushService = require('../service/pushService');
 var uuid = require('node-uuid');
 var jwt = require('koa-jwt');
+var fs = require('fs');
+var xml2js = require('xml2js');
+
 
 //更新用户信息
 router.post('/updateUserInfo',function*(next){
@@ -91,7 +94,7 @@ router.post('/applyAddFriend', function*(next){
      }
 
      var affect = yield userService.applyAddFriend(userid,friendid);
-     if(affect.affectedRows == 1) this.body = this.RESS(200,"好友请求成功");
+     if(affect.affectedRows === 1) this.body = this.RESS(200,"好友请求成功");
   }catch(e){
     throw new Error(e.message);
   }
@@ -484,13 +487,16 @@ router.post('/likeWish',function*(next){
         var likeId = ps.likeId;
         console.log("UNLIKE:"+likeId+">>>>>>>>>>>>>");
         affect = yield userService.unLikeWish(likeId,userId);
+        console.log("affect:"+affect.affectedRows);
+      if(affect.affectedRows === 1 ){
+         this.body = this.RESS(200,likeId);
+      }
     }else if(type === "LIKE"){
       var likeId = uuid.v1();
       affect = yield userService.likeWish(likeId,wishId,userId);
-    }
-    if(affect.affectedRows === 1 ){
-      console.log("dian zan  cheng gong")
-      this.body = this.RESS(200,likeId);
+      if(affect.affectedRows === 1 ){
+        this.body = this.RESS(200,likeId);
+      }
     }
   }catch(e){
     throw new Error(e.message);
@@ -528,8 +534,6 @@ router.post('/findFriendIds',function*(next){
   }
 });
 
-
-
 //获取token
 router.post('/user/getToken', function*(next) {
   var promise = new Promise(function(resolve, reject) {
@@ -544,6 +548,36 @@ router.post('/user/getToken', function*(next) {
   });
   this.body = yield promise;
 });
+
+//检查更新
+router.post('/checkForUpdate', function*(next) {
+  try{
+    var parser = new xml2js.Parser(xml2js.defaults['0.1']);
+    var showThis = this;
+
+    var promise = yield new Promise(function(resolve, reject){
+      fs.readFile('./updateApk/version.xml', function(err, data) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      });
+    });
+
+    parser.parseString(promise, function(err, result) {
+      showThis.body = showThis.RESS(200,result);
+      return;
+    });
+    
+  }catch(e){
+    console.log(JSON.stringify(e));
+    throw new Error(e.message);
+  } 
+});
+
+//应用错误报告
+
+
 module.exports = router;
 
-//Promise
