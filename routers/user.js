@@ -53,7 +53,9 @@ router.post('/findUsersLikeName', function*(next){
 //根据用户ID查找用户信息
 router.post('/findUserById',function*(next){
   try{
-    var userId = this.state.user.userId;
+    //var userId = this.state.user.userId;
+    var ps = this.request.body;
+    var userId = ps.userid;
     var rows = yield userService.findUserById(userId);
     console.log(rows);
     try{

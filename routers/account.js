@@ -138,7 +138,7 @@ router.post('/user/login', function*(next) {
   if(rows!=null){ 
     var userId = rows.userid;
     //生成token
-    var wToken = jwt.sign({userId:userId},"wishwall-secret",{expiresIn:'24h'});
+    var wToken = jwt.sign({userId:userId},"wishwall-secret",{expiresIn:'48h'});
     rows.wToken = wToken;  
     this.body = this.RESS(200,rows);
     return;

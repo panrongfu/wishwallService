@@ -11,6 +11,7 @@ router.post('/sendMessage', function*(next) {
     var toUserId = ps.toUserId;
     var message = ps.message;
     var type = ps.objectName;
+    var msgType = ps.msgType;//两种情况1、请求添加好友 2、同意添加好友
     var messageObject = {};
     if (type === 'RC:ContactNtf') {
       messageObject = {
@@ -26,21 +27,26 @@ router.post('/sendMessage', function*(next) {
       };
     }
     //先进行判断是否已经是好友关系
-    var has = yield userService.findFriendIds(fromUserId);
-    console.log(JSON.stringify(has));
-    for (var i = 0; i < has.length; i++) {
-      if (toUserId === has[i].friendid) {    
-          this.body = this.RESS(200, "你们已经是好友啦");
-          return;
-      }
+    if(msgType === "APPLY"){
+       var has = yield userService.findFriendIds(fromUserId);
+       for (var i = 0; i < has.length; i++) {
+          if (toUserId === has[i].friendid) {    
+             this.body = this.RESS(200, "你们已经是好友啦");
+             return;
+          }
+       }
     }
      //向融云发送单聊信息（好友请求） 
     var result = yield pushService.sendMessage(fromUserId, toUserId, type, messageObject);
     if (result.code == 200) {
-      var affect = yield userService.applyAddFriend(fromUserId, toUserId);
-      if (affect.affectedRows == 1) {
-        this.body = this.RESS(200, "好友请求成功");
-      }
+      if(msgType === "APPLY"){
+         var affect = yield userService.applyAddFriend(fromUserId, toUserId);
+         if (affect.affectedRows == 1) {
+            this.body = this.RESS(200, "好友请求成功");
+         }
+      }else if(msgType === "ADD"){    
+        this.body = this.RESS(200,"添加成功");
+      } 
     }  
   } catch (e) {
     throw new Error(e.message);

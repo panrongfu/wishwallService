@@ -8,6 +8,7 @@ var send = require('koa-send');
 var jwt = require('koa-jwt');
 var unless = require('koa-unless');
 var acount = require('./routers/account');
+var upload = require('./routers/upload');
 var routers = requireDir('./routers', __dirname)
 var cors = require('koa-cors');
 
@@ -61,10 +62,14 @@ app
   .use(acount.routes())
   .use(acount.allowedMethods());
 
+app
+  .use(upload.routes())
+  .use(upload.allowedMethods());  
+
 app.use(jwt({ secret: 'wishwall-secret' }));
 
 for(i in routers){
-  if(i !== 'account'){
+  if(i !== 'account' || i !== 'upload'){
   app
     .use(routers[i].routes())
     .use(routers[i].allowedMethods());

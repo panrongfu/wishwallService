@@ -37,7 +37,6 @@ exports.sendMessage = function(fromUserId, toUserId, objectName,message) {
     async.each(argsArray, function(_args, cb) {
 
       rongSDK.message.private.publish.apply(this, _args.concat(function(err, resultText) {
-        console.log("err:" + resultText + "####" + "result:" + resultText);
          if (err) {
           reject(err);
            cb();

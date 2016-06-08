@@ -243,7 +243,7 @@ exports.applyAddFriend = function(userid, friendid) {
 //添加好友
 exports.addFriend = function(userid, friendid) {
   var sql = 'INSERT INTO friends VALUES(?,?,?,?)';
-   var time = moment().format('YYYY-MM-DD HH:mm:ss');
+  var time = moment().format('YYYY-MM-DD HH:mm:ss');
   //这里satus为3表示请求添加为好友
   var values = [userid, friendid,1,time];
   sql = mysql.format(sql, values);
@@ -263,12 +263,10 @@ exports.updateApplyFriend = function(userid,friendid,status){
   var sql = 'UPDATE apply_friend SET status=? WHERE userid=? AND friendid=?';
   var values = [status, userid, friendid];
   sql = mysql.format(sql, values);
-  console.log(sql);
   //创建promise
   var promise = new Promise(function(resolve, reject) {
     connection.query(sql, function(err, result) {
       if (err) {
-        console.log(err+"<>><><><>");
         reject(err);
       } else {
         resolve(result);
